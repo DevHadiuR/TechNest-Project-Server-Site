@@ -39,9 +39,16 @@ async function run() {
       .collection("allProducts");
 
     app.get("/allProducts", async (req, res) => {
+      const searchText = req.query.search || "";
       const selectedSort = req.query.selectedSort;
-      console.log(selectedSort);
+      console.log(searchText);
       const query = {};
+      if (searchText) {
+        query.ProductName = {
+          $regex: searchText,
+          $options: "i",
+        };
+      }
       const options = {
         sort: {},
       };
