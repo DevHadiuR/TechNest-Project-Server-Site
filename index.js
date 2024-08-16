@@ -39,13 +39,27 @@ async function run() {
       .collection("allProducts");
 
     app.get("/allProducts", async (req, res) => {
+      const selectedCategories = req.query.selectedCategories
+        ? req.query.selectedCategories.split(",")
+        : [];
       const selectedBrands = req.query.selectedBrands
         ? req.query.selectedBrands.split(",")
         : [];
       const searchText = req.query.search || "";
       const selectedSort = req.query.selectedSort;
-      console.log(selectedBrands.length);
+
+      const page = parseInt(req.query.page) || 1;
+      const size = parseInt(req.query.size) || 6;
+
+      console.log(selectedCategories);
       const query = {};
+
+      // Filter by selected category names if provided
+      if (selectedCategories.length > 0) {
+        query.Category = {
+          $in: selectedCategories,
+        };
+      }
 
       // Filter by selected brand names if provided
       if (selectedBrands.length > 0) {
@@ -73,21 +87,37 @@ async function run() {
       } else if (selectedSort === "new") {
         options.sort.DateTime = -1;
       }
-      const page = parseInt(req.query.page);
-      const size = parseInt(req.query.size);
 
-      const result = await allProductsCollection
-        .find(query, options)
-        .skip(page * size)
-        .limit(size)
-        .toArray();
-      res.send(result);
+      //   const result = await allProductsCollection
+      //     .find(query, options)
+      //     .skip(page * size)
+      //     .limit(size)
+      //     .toArray();
+      //   res.send(result);
+
+      try {
+        //  Fetch Total Count for Pagination
+        const count = await allProductsCollection.countDocuments(query);
+
+        // Fetch Data with Pagination
+        const result = await allProductsCollection
+          .find(query, options)
+          .skip((page - 1) * size)
+          .limit(size)
+          .toArray();
+
+        res.send({ result, count: count });
+      } catch (err) {
+        res
+          .status(500)
+          .send({ message: "Error fetching products", error: err });
+      }
     });
 
-    app.get("/allProductsCount", async (req, res) => {
-      const count = await allProductsCollection.estimatedDocumentCount();
-      res.send({ count });
-    });
+    // app.get("/allProductsCount", async (req, res) => {
+    //   const count = await allProductsCollection.estimatedDocumentCount();
+    //   res.send({ count });
+    // });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
