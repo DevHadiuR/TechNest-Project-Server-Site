@@ -39,8 +39,20 @@ async function run() {
       .collection("allProducts");
 
     app.get("/allProducts", async (req, res) => {
-      const result = await allProductsCollection.find().toArray();
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
+
+      const result = await allProductsCollection
+        .find()
+        .skip(page * size)
+        .limit(size)
+        .toArray();
       res.send(result);
+    });
+
+    app.get("/allProductsCount", async (req, res) => {
+      const count = await allProductsCollection.estimatedDocumentCount();
+      res.send({ count });
     });
 
     // Send a ping to confirm a successful connection
