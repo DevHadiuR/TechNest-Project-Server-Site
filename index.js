@@ -39,11 +39,24 @@ async function run() {
       .collection("allProducts");
 
     app.get("/allProducts", async (req, res) => {
+      const selectedSort = req.query.selectedSort;
+      console.log(selectedSort);
+      const query = {};
+      const options = {
+        sort: {},
+      };
+      if (selectedSort === "l>h") {
+        options.sort.Price = 1;
+      } else if (selectedSort === "h>l") {
+        options.sort.Price = -1;
+      } else if (selectedSort === "new") {
+        options.sort.DateTime = -1;
+      }
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
 
       const result = await allProductsCollection
-        .find()
+        .find(query, options)
         .skip(page * size)
         .limit(size)
         .toArray();
