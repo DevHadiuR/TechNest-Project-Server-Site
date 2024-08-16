@@ -39,10 +39,22 @@ async function run() {
       .collection("allProducts");
 
     app.get("/allProducts", async (req, res) => {
+      const selectedBrands = req.query.selectedBrands
+        ? req.query.selectedBrands.split(",")
+        : [];
       const searchText = req.query.search || "";
       const selectedSort = req.query.selectedSort;
-      console.log(searchText);
+      console.log(selectedBrands.length);
       const query = {};
+
+      // Filter by selected brand names if provided
+      if (selectedBrands.length > 0) {
+        query.Brand = {
+          $in: selectedBrands,
+        };
+      }
+
+      // Filter by ProductName if searchText is provided
       if (searchText) {
         query.ProductName = {
           $regex: searchText,
@@ -52,6 +64,8 @@ async function run() {
       const options = {
         sort: {},
       };
+
+      // Sorting logic
       if (selectedSort === "l>h") {
         options.sort.Price = 1;
       } else if (selectedSort === "h>l") {
