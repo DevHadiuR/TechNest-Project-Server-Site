@@ -62,6 +62,11 @@ async function run() {
           $gte: minPrice,
         };
       }
+      if (maxPrice > 0) {
+        query.Price = {
+          $lte: maxPrice,
+        };
+      }
 
       // Filter by selected category names if provided
       if (selectedCategories.length > 0) {
