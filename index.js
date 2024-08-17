@@ -39,6 +39,9 @@ async function run() {
       .collection("allProducts");
 
     app.get("/allProducts", async (req, res) => {
+      const minPrice = parseInt(req.query.minPrice) || 0;
+      const maxPrice = parseInt(req.query.maxPrice) || 0;
+
       const selectedCategories = req.query.selectedCategories
         ? req.query.selectedCategories.split(",")
         : [];
@@ -51,8 +54,14 @@ async function run() {
       const page = parseInt(req.query.page) || 1;
       const size = parseInt(req.query.size) || 6;
 
-      console.log(selectedCategories);
       const query = {};
+
+      //   filter by price range
+      if (minPrice > 0) {
+        query.Price = {
+          $gte: minPrice,
+        };
+      }
 
       // Filter by selected category names if provided
       if (selectedCategories.length > 0) {
