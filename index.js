@@ -8,7 +8,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5174"],
+    origin: ["http://localhost:5174", "https://technest-project.netlify.app"],
   })
 );
 app.use(express.json());
@@ -31,12 +31,12 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     // all collections
     const allProductsCollection = client
       .db("techNestDB")
-      .collection("allProducts");
+      .collection("allProducts2");
 
     app.get("/allProducts", async (req, res) => {
       const minPrice = parseInt(req.query.minPrice) || 0;
@@ -134,10 +134,10 @@ async function run() {
     // });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
